@@ -14,14 +14,16 @@
 
 <p align="center">
   <img src="skill_vs_app_full.png" width="380" />
+  <img src="hermes_poster.png" width="280" />
 </p>
 
 **设计特点：**
 - 🎨 纯白背景，极简编辑风格（Financial Times / 经济学人美学）
-- 📱 750px 宽度，手机阅读优化，字号比传统排版大 32%
-- 📏 统一三级间距系统（GAP_S 10px / GAP_M 16px / GAP_L 24px）
+- 📱 750px 宽度，手机阅读优化，字号比传统排版大 **57%**（原始+32%再+25%）
+- 📏 统一三级间距系统（GAP_S **12px** / GAP_M **20px** / GAP_L **30px**）
 - ✍️ 每张插图右下角自动带草书签名
 - 🔤 中英混排优化（PingFang SC + Bricolage Grotesque + JetBrains Mono）
+- 🧹 自动清除中文间多余空格和 Unicode 标签字符
 
 ### 海报风格库
 
@@ -46,12 +48,16 @@ wechat-style-writer/
 ├── gen_poster_*_v2.py           # 各风格 v2 迭代版
 ├── workbuddy-poster-style*.md   # 风格设计定义文档
 │
+├── hermes_article.md            # 📄 文章 Markdown 源文件
+├── md_to_image_hermes.py        # Hermes 文章渲染脚本
+├── hermes_poster.png            # 🖼️ Hermes 文章长图输出
+│
 ├── skill_vs_app_full.png        # 完整长图示例输出
 ├── workbuddy_poster_style*.png  # 海报风格样例
 ├── proto_card_v01.png           # 原型卡片
 │
-└── generated-images/            # New Yorker 风格配图素材
-    └── *.png                    #   （讽刺漫画 / 视觉隐喻插图）
+└── generated-images/            # 配图素材
+    └── *.png                    #   New Yorker 风格讽刺漫画 / 视觉隐喻插图
 ```
 
 ---
@@ -112,25 +118,25 @@ python3 my_article.py
 | GRAY_M | `#828A94` | 中灰：标签、caption |
 | GRAY_D | `#505A69` | 深灰：引用块文字 |
 
-### 字号表（750px 宽度，+32% 放大）
+### 字号表（750px 宽度，+57% 放大）
 
 | 元素 | 字体 | 大小 |
 |------|------|------|
-| H1 封面 | BricolageGrotesque-Bold | **45px** |
-| H2 章节 | PingFang SC Semibold | **30px** |
-| H3 小节 | PingFang SC Semibold | **23px** |
-| 正文 | PingFang SC Regular | **22px** |
-| 引用 | PingFang SC Regular | **20px** |
-| 标签/footer | PingFang SC Regular | **17px** |
-| 代码 | JetBrains Mono | **16px** |
-| 签名 | Nothing You CouldDo | **21px** |
+| H1 封面 | BricolageGrotesque-Bold | **56px** |
+| H2 章节 | PingFang SC Semibold | **38px** |
+| H3 小节 | PingFang SC Semibold | **29px** |
+| 正文 | PingFang SC Regular | **28px** |
+| 引用 | PingFang SC Regular | **25px** |
+| 标签/footer | PingFang SC Regular | **21px** |
+| 代码 | JetBrains Mono | **20px** |
+| 签名 | Nothing You CouldDo | **26px** |
 
 ### 三级段后间距
 
 ```
-GAP_S  10px  → 正文→正文、列表项→列表项
-GAP_M  16px  → 正文→callout、callout→正文、引用块→正文
-GAP_L  24px  → H2 后、分隔线前后、插图前后
+GAP_S  12px  → 正文→正文、列表项→列表项
+GAP_M  20px  → 正文→callout、callout→正文、引用块→正文
+GAP_L  30px  → H2 后、分隔线前后、插图前后
 ```
 
 ---
