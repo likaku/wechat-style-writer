@@ -34,26 +34,26 @@ WHITE   = (255, 255, 255)
 # ── 细长版：750px 宽度（手机阅读优化）───────────────────────────────────────
 W = 750
 
-# ── 字体实例（750px 细长版，字号+32%）──────────────────────────────────────
-F_H1     = ef("BricolageGrotesque-Bold.ttf", 45)
-F_H2     = cf(30, index=3)       # PingFang SC Semibold
-F_H3     = cf(23, index=3)
-F_BODY   = cf(22)                # 正文
-F_BODY_B = cf(22, index=3)
-F_QUOTE  = cf(20)                # 引用稍小
-F_TAG    = cf(17)                # 标签/标注
-F_MONO   = ef("JetBrainsMono-Regular.ttf", 16)
-F_CAPTION = cf(16)
-F_SIG    = ef("NothingYouCouldDo-Regular.ttf", 21)  # 草书签名
+# ── 字体实例（750px 细长版，字号+57% = 原始+32%再+25%）─────────────────────────
+F_H1     = ef("BricolageGrotesque-Bold.ttf", 56)
+F_H2     = cf(38, index=3)       # PingFang SC Semibold
+F_H3     = cf(29, index=3)
+F_BODY   = cf(28)                # 正文
+F_BODY_B = cf(28, index=3)
+F_QUOTE  = cf(25)                # 引用稍小
+F_TAG    = cf(21)                # 标签/标注
+F_MONO   = ef("JetBrainsMono-Regular.ttf", 20)
+F_CAPTION = cf(20)
+F_SIG    = ef("NothingYouCouldDo-Regular.ttf", 26)  # 草书签名
 
 # ── 布局参数 ───────────────────────────────────────────────────────────────────
 MARGIN_X = 40                    # 左右边距
 CONTENT_W = W - MARGIN_X * 2     # 内容区宽度
 LINE_HEIGHT = 1.75               # 行内行高倍率
-# 统一段后间距（同一层次元素之间的标准距离）
-GAP_S     = 10   # 小间距：正文→正文、列表项之间  
-GAP_M     = 16   # 中间距：正文→callout、正文→引用、callout→正文
-GAP_L     = 24   # 大间距：章节标题→第一个正文、分隔线前后、插图前后
+# 统一段后间距（字号放大25%后同步调整间距）
+GAP_S     = 12   # 小间距：正文→正文、列表项之间  
+GAP_M     = 20   # 中间距：正文→callout、正文→引用、callout→正文
+GAP_L     = 30   # 大间距：章节标题→第一个正文、分隔线前后、插图前后
 
 # ── 插图目录 ───────────────────────────────────────────────────────────────────
 IMG_DIR = "/Users/kaku/WorkBuddy/20260407113700/generated-images"
@@ -132,6 +132,10 @@ def render_paragraph_with_inline(draw, xy, text, font_normal, font_bold,
     if color_bold is None:
         color_bold = NAVY
 
+    # 预处理：清除 Unicode 私用区标签字符（㌌ U+334C / ㌍ U+334D）及多余空格
+    text = re.sub(r'[\u334c\u334d]+', '', text)
+    text = re.sub(r'(?<=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]) +(?=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef])', '', text)
+
     runs = parse_inline(text)
     x, y = xy
     line_start_y = y
@@ -177,6 +181,10 @@ def render_paragraph_with_inline(draw, xy, text, font_normal, font_bold,
 
 def text_wrap(text, font, max_width):
     """中文自动换行。返回行列表。"""
+    # 预处理：清除 Unicode 私用区标签字符及中文间多余空格
+    text = re.sub(r'[\u334c\u334d]+', '', text)
+    text = re.sub(r'(?<=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]) +(?=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef])', '', text)
+    
     if not text.strip():
         return []
     
@@ -233,52 +241,61 @@ class CardRenderer:
     
     def render_h1(self, text):
         """一级标题"""
-        self._ensure_height(self.y + 80)
-        y = self.y + 8
+        self._ensure_height(self.y + 100)
+        y = self.y + 10
         
         # 顶部装饰线
         self.draw.rectangle([0, y, self.W, y+3], fill=NAVY)
-        y += 14
+        y += 18
         
         # 混排绘制
         draw_mixed_text(self.draw, (self.MX, y), text, 
                        cf(36, index=3), F_H1,   
                        NAVY)
-        y += F_H1.size + 8
+        y += F_H1.size + 10
         
         # 底部装饰线
         self.draw.rectangle([self.MX, y, self.MX + 60, y+2], fill=TEAL)
         
-        self.y = y + 18
+        self.y = y + 22
         return self.y
     
     def render_h2(self, number, text):
         """二级标题：序号 + 文字"""
-        self._ensure_height(self.y + 70)
+        self._ensure_height(self.y + 90)
         
-        self.y += 22
+        # 预处理标签字符
+        text = re.sub(r'[\u334c\u334d]+', '', text)
+        text = re.sub(r'(?<=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]) +(?=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef])', '', text)
+        
+        self.y += 28
         
         # 序号（大号浅灰）
         num_y = self.y
         self.draw.text((self.MX, num_y), f"{number:02d}", 
-                       font=ef("BricolageGrotesque-Bold.ttf", 28), 
+                       font=ef("BricolageGrotesque-Bold.ttf", 35), 
                        fill=GRAY_L)
         
         # 标题
-        title_y = num_y + 30
+        title_y = num_y + 38
         self.draw.text((self.MX, title_y), text, font=F_H2, fill=NAVY)
         
         # 装饰短线
-        under_y = title_y + F_H2.size + 6
+        under_y = title_y + F_H2.size + 8
         self.draw.rectangle([self.MX, under_y, self.MX + 32, under_y+2], fill=TEAL)
         
-        self.y = under_y + 18
+        self.y = under_y + 22
         return self.y
     
     def render_h3(self, text):
         """三级标题"""
-        self._ensure_height(self.y + 40)
-        self.y += 14
+        self._ensure_height(self.y + 50)
+        
+        # 预处理标签字符
+        text = re.sub(r'[\u334c\u334d]+', '', text)
+        text = re.sub(r'(?<=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]) +(?=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef])', '', text)
+        
+        self.y += 18
         prefix = "— "
         self.draw.text((self.MX, self.y), prefix, font=F_H3, fill=GRAY_L)
         prefix_w = self.draw.textlength(prefix, font=F_H3)
@@ -288,7 +305,7 @@ class CardRenderer:
     
     def render_body(self, text):
         """正文段落（支持 **加粗**）"""
-        self._ensure_height(self.y + 40)
+        self._ensure_height(self.y + 50)
         new_y, _h = render_paragraph_with_inline(
             self.draw, (self.MX, self.y), text,
             F_BODY, F_BODY_B,
@@ -302,18 +319,18 @@ class CardRenderer:
     
     def render_bullet(self, text, dot="●"):
         """无序列表项"""
-        self._ensure_height(self.y + 40)
+        self._ensure_height(self.y + 50)
 
-        dot_y = self.y + 5
+        dot_y = self.y + 6
         self.draw.text((self.MX, dot_y), dot, font=F_BODY, fill=TEAL)
 
         new_y, _h = render_paragraph_with_inline(
-            self.draw, (self.MX + 22, self.y), text,
+            self.draw, (self.MX + 28, self.y), text,
             F_BODY, F_BODY_B,
-            max_width=self.CW - 22,
+            max_width=self.CW - 28,
             color_normal=(45, 45, 45),
             color_bold=NAVY,
-            margin_x=self.MX + 22,
+            margin_x=self.MX + 28,
             after=GAP_S
         )
         self.y = new_y
@@ -321,17 +338,17 @@ class CardRenderer:
     
     def render_callout(self, text):
         """金句 callout：左侧竖线 + 底纹"""
-        lines = text_wrap(text, F_BODY_B, self.CW - 32)
+        lines = text_wrap(text, F_BODY_B, self.CW - 36)
         if not lines:
             return self.y
 
         line_h = int(F_BODY_B.size * LINE_HEIGHT)
-        pad_v = 12          # 上下内边距
+        pad_v = 15          # 上下内边距
         block_h = len(lines) * line_h + pad_v * 2
         self._ensure_height(self.y + block_h + GAP_M)
 
-        block_top = self.y + 4
-        block_bottom = self.y + block_h - 4
+        block_top = self.y + 5
+        block_bottom = self.y + block_h - 5
 
         # 背景
         self.draw.rectangle(
@@ -339,28 +356,28 @@ class CardRenderer:
             fill=(250, 250, 249)
         )
         # 左侧竖线
-        self.draw.rectangle([self.MX, block_top, self.MX+4, block_bottom], fill=TEAL)
+        self.draw.rectangle([self.MX, block_top, self.MX+5, block_bottom], fill=TEAL)
 
         for i, line in enumerate(lines):
             ly = block_top + pad_v + i * line_h
-            self.draw.text((self.MX + 20, ly), line, font=F_BODY_B, fill=NAVY)
+            self.draw.text((self.MX + 24, ly), line, font=F_BODY_B, fill=NAVY)
 
         self.y = block_bottom + GAP_M
         return self.y
     
     def render_quote(self, text):
         """引用块：细竖线 + 浅灰底纹"""
-        lines = text_wrap(text, F_QUOTE, self.CW - 28)
+        lines = text_wrap(text, F_QUOTE, self.CW - 32)
         if not lines:
             return self.y
 
         line_h = int(F_QUOTE.size * LINE_HEIGHT)
-        pad_v = 10
+        pad_v = 12
         block_h = len(lines) * line_h + pad_v * 2
         self._ensure_height(self.y + block_h + GAP_M)
 
-        block_top = self.y + 3
-        block_bottom = self.y + block_h - 3
+        block_top = self.y + 4
+        block_bottom = self.y + block_h - 4
 
         # 底纹
         self.draw.rectangle(
@@ -368,22 +385,22 @@ class CardRenderer:
             fill=(250, 250, 248)
         )
         # 细竖线
-        self.draw.rectangle([self.MX, block_top, self.MX+2, block_bottom], fill=GRAY_M)
+        self.draw.rectangle([self.MX, block_top, self.MX+3, block_bottom], fill=GRAY_M)
 
         for i, line in enumerate(lines):
             ly = block_top + pad_v + i * line_h
-            self.draw.text((self.MX + 16, ly), line, font=F_QUOTE, fill=GRAY_D)
+            self.draw.text((self.MX + 20, ly), line, font=F_QUOTE, fill=GRAY_D)
 
         self.y = block_bottom + GAP_M
         return self.y
     
     def render_separator(self):
         """分隔线"""
-        self._ensure_height(self.y + 32)
-        self.y += 12
+        self._ensure_height(self.y + 40)
+        self.y += 16
         cx = self.W // 2
         self.draw.text((cx, self.y), "— · —", font=F_TAG, fill=GRAY_L, anchor="mm")
-        self.y += 24
+        self.y += 28
         return self.y
     
     def render_image(self, img_path, caption=None):
@@ -410,13 +427,13 @@ class CardRenderer:
         
         # 居中位置 + 预估总高度（加更多余量）
         x_offset = (self.W - new_w) // 2
-        total_h = new_h + (32 if caption else 22)
+        total_h = new_h + (40 if caption else 28)
         
         # 关键：先扩展画布，再粘贴！
-        self._ensure_height(self.y + total_h + 20)
+        self._ensure_height(self.y + total_h + 24)
         
         # 上留白
-        self.y += 12
+        self.y += 16
         
         # 粘贴图片：RGBA → RGB 合成到白色背景
         rgb_img = Image.new("RGB", img.size, (255, 255, 255))
@@ -424,14 +441,14 @@ class CardRenderer:
         
         # 右下角草书签名
         sig = ImageDraw.Draw(rgb_img)
-        sig.text((new_w - 64, new_h - 18), "kaku", font=F_SIG, fill=(170, 170, 170))
+        sig.text((new_w - 80, new_h - 22), "kaku", font=F_SIG, fill=(170, 170, 170))
         
         self.img.paste(rgb_img, (x_offset, int(self.y)))
         
         # 重要：_ensure_height 可能重建了画布，需要重新获取 draw 对象
         self.draw = ImageDraw.Draw(self.img)
         
-        self.y += new_h + 8
+        self.y += new_h + 10
         
         # Caption
         if caption:
@@ -442,15 +459,15 @@ class CardRenderer:
                 self.draw.text((cx, self.y), line, font=F_CAPTION, fill=GRAY_M)
                 self.y += int(F_CAPTION.size * LINE_HEIGHT)
         else:
-            self.y += 8
+            self.y += 10
 
         print(f"  🖼 Inserted image: {os.path.basename(img_path)} ({new_w}×{new_h}) at y={self.y}")
         return self.y
     
     def render_data_row(self, label, value, highlight=False):
         """数据行：左标签 + 右数值"""
-        self._ensure_height(self.y + 28)
-        self.y += 4
+        self._ensure_height(self.y + 36)
+        self.y += 5
         
         lbl_color = TEAL if highlight else GRAY_D
         val_color = NAVY if highlight else GRAY_D
@@ -463,22 +480,22 @@ class CardRenderer:
         val_w = self.draw.textlength(value, font=val_font)
         self.draw.text((self.W - MARGIN_X - val_w, self.y), value, font=val_font, fill=val_color)
         
-        self.y += int(F_BODY.size * LINE_HEIGHT) + 2
+        self.y += int(F_BODY.size * LINE_HEIGHT) + 4
         return self.y
     
     def render_footer(self, text="— END —"):
         """底部结尾"""
-        self._ensure_height(self.y + 60)
-        self.y += 24
+        self._ensure_height(self.y + 100)
+        self.y += 30
         
         # 线
         self.draw.rectangle([self.MX, self.y, self.W - self.MX, self.y+1], fill=GRAY_L)
-        self.y += 12
+        self.y += 16
         
         # 结束文字
         tw = self.draw.textlength(text, font=F_TAG)
         self.draw.text(((self.W - tw)//2, self.y), text, font=F_TAG, fill=GRAY_M)
-        self.y += 30
+        self.y += 38
         return self.y
     
     def get_image(self):
