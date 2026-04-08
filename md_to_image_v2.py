@@ -132,8 +132,8 @@ def render_paragraph_with_inline(draw, xy, text, font_normal, font_bold,
     if color_bold is None:
         color_bold = NAVY
 
-    # 预处理：清除 Unicode 私用区标签字符（㌌ U+334C / ㌍ U+334D）及多余空格
-    text = re.sub(r'[\u334c\u334d]+', '', text)
+    # 预处理：清除 Unicode 占位符（㌌ U+330C / ㌍ U+330D）及多余空格
+    text = re.sub(r'[\u330c\u330d]+', '', text)
     text = re.sub(r'(?<=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]) +(?=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef])', '', text)
 
     runs = parse_inline(text)
@@ -181,8 +181,8 @@ def render_paragraph_with_inline(draw, xy, text, font_normal, font_bold,
 
 def text_wrap(text, font, max_width):
     """中文自动换行。返回行列表。"""
-    # 预处理：清除 Unicode 私用区标签字符及中文间多余空格
-    text = re.sub(r'[\u334c\u334d]+', '', text)
+    # 预处理：清除 Unicode 占位符（㌌ U+330C / ㌍ U+330D）及中文间多余空格
+    text = re.sub(r'[\u330c\u330d]+', '', text)
     text = re.sub(r'(?<=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]) +(?=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef])', '', text)
     
     if not text.strip():
@@ -265,7 +265,7 @@ class CardRenderer:
         self._ensure_height(self.y + 90)
         
         # 预处理标签字符
-        text = re.sub(r'[\u334c\u334d]+', '', text)
+        text = re.sub(r'[\u330c\u330d]+', '', text)
         text = re.sub(r'(?<=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]) +(?=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef])', '', text)
         
         self.y += 28
@@ -292,7 +292,7 @@ class CardRenderer:
         self._ensure_height(self.y + 50)
         
         # 预处理标签字符
-        text = re.sub(r'[\u334c\u334d]+', '', text)
+        text = re.sub(r'[\u330c\u330d]+', '', text)
         text = re.sub(r'(?<=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]) +(?=[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef])', '', text)
         
         self.y += 18
