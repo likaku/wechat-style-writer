@@ -439,10 +439,6 @@ class CardRenderer:
         rgb_img = Image.new("RGB", img.size, (255, 255, 255))
         rgb_img.paste(img, mask=img.split()[3])
         
-        # 右下角草书签名
-        sig = ImageDraw.Draw(rgb_img)
-        sig.text((new_w - 80, new_h - 22), "kaku", font=F_SIG, fill=(170, 170, 170))
-        
         self.img.paste(rgb_img, (x_offset, int(self.y)))
         
         # 重要：_ensure_height 可能重建了画布，需要重新获取 draw 对象
